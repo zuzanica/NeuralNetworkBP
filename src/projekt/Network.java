@@ -7,7 +7,7 @@ public class Network {
 	private int layerCount;
 	private int hNeuronsCount;
 	private int oNeuronsCount;
-	private double target = 1.0;
+	private double target = 0.0;
 	double momentum = 1;
 	double learningRate = 0.7; 
 	
@@ -26,8 +26,9 @@ public class Network {
 		actualInputs.clear();
 		actualInputs = (ArrayList<Double>) inputs.clone();
 		initialize();
-		printInputs();
-		printInfo();
+		//printInputs();
+		printInitialState();
+		//printInfo();
 	}
 	
 	public void initialize(){
@@ -46,12 +47,14 @@ public class Network {
 		this.inputs = (ArrayList<Double>) inputs.clone();
 		actualInputs.clear();
 		actualInputs = (ArrayList<Double>) inputs.clone();
-		printInputs();
+		//printInputs();
+		
 		
 		forwardPropagate();
 		derivationComputing();
 		errorBackPropagation();
-		printInfo();
+		printOut();
+		//printInfo();
 				
 	}
 	
@@ -62,10 +65,10 @@ public class Network {
 		this.inputs = (ArrayList<Double>) inputs.clone();
 		actualInputs.clear();
 		actualInputs = (ArrayList<Double>) inputs.clone();
-		printInputs();
+		//printInputs();
 		forwardPropagate();
-		printInfo();
-		System.out.println("=====================================================================================");
+		printOut();
+		//printInfo();
 	}
 	
 	private void forwardPropagate(){
@@ -85,21 +88,24 @@ public class Network {
 					
 					//System.out.println();
 				}
-				hiddenLayers[i].neuronArr[j].out = countOutput(actualLayer.neuronArr[j].net);
+				hiddenLayers[i].neuronArr[j].out = countOutput(hiddenLayers[i].neuronArr[j].net);
 				//System.out.println();
 			}
 			refreshInputs(hiddenLayers[i].neuronArr);
 		}
-		
+		//System.out.println("***************************************************");
+		//printInfo();
+		//System.out.println("***************************************************");
 		//output layer
 		for(j =0 ; j < outputLayer.neuronCount; j++){
 			outputLayer.neuronArr[j].net = 0.0;
 			for(k =0 ; k < actualInputs.size(); k++){
 				outputLayer.neuronArr[j].net += (outputLayer.neuronArr[j].weights[k] * actualInputs.get(k)) ;
-				//System.out.print("weight" +k+ "=" +  hiddenLayers[i].neuronArr[j].weights[k] + " ");					
+				//System.out.println("weight" +k+ "=" +  outputLayer.neuronArr[j].weights[k] + " ACTUAL IN "+ actualInputs.get(k));					
 			}
 			outputLayer.neuronArr[j].out = countOutput(outputLayer.neuronArr[j].net);
-			//System.out.println();
+			//System.out.println("CHYBA NET " + outputLayer.neuronArr[j].net);
+			//System.out.println("CHYBA OUTPUT " + outputLayer.neuronArr[j].out);
 		}
 	}
 	
@@ -110,12 +116,15 @@ public class Network {
 		outputLayer.totalError = 0.0;
 		for(j =0 ; j < outputLayer.neuronCount; j++){
 			outputLayer.totalError += countErrOut(outputLayer.neuronArr[j]);
+			globalErr += 0.5*outputLayer.totalError ;
 			//System.out.println(outputLayer.totalError);
 			//output layer derivation
+			//System.out.println("VYPOCET DERIVACIE POSLEDNEHO");
 			outputLayer.neuronArr[j].derivation = countNeuDerivation(outputLayer.neuronArr[j]);
 		}
 		
 		//hidden layer derivations
+		
 		Layer actuaLayer = outputLayer, nextLayer = outputLayer;
 		for( i = layerCount-1 ; i >= 0; i-- ){
 			actuaLayer = hiddenLayers[i];
@@ -126,11 +135,16 @@ public class Network {
 			}
 			
 			for(j =0 ; j < actuaLayer.neuronCount; j++){
-				actuaLayer.neuronArr[j].derivation = 0.0;
+				//System.out.println("VYPOCET DERIVACIE ");
+				hiddenLayers[i].neuronArr[j].derivation = 0.0;
 				for(k =0 ; k < nextLayer.neuronCount; k++){
-					actuaLayer.neuronArr[j].derivation += nextLayer.neuronArr[k].weights[j] * nextLayer.neuronArr[k].derivation; 
+					//System.out.println("Vystupujuca vaha " + nextLayer.neuronArr[k].weights[j]);
+					//System.out.println("derivace predosleho  " + nextLayer.neuronArr[k].derivation);
+					hiddenLayers[i].neuronArr[j].derivation += nextLayer.neuronArr[k].weights[j] * nextLayer.neuronArr[k].derivation; 
 				}
-				actuaLayer.neuronArr[j].derivation *= actuaLayer.neuronArr[j].out * (1.0 - actuaLayer.neuronArr[j].out);
+				//System.out.println("V7stup aktualneho neuronu  " + actuaLayer.neuronArr[j].out);
+				hiddenLayers[i].neuronArr[j].derivation *= actuaLayer.neuronArr[j].out * (1.0 - actuaLayer.neuronArr[j].out);
+				//System.out.println("Cela nova derivacia neuronu  " + j + " je "+ hiddenLayers[i].neuronArr[j].derivation);
 			}
 		}	
 	}
@@ -138,17 +152,28 @@ public class Network {
 	private void errorBackPropagation(){		
 		int i,j,k ;
 		
+		//System.out.println("UPRAVA VAH POSLEDNEJ VRSTVY");
 		//output layer
 		refreshInputs(hiddenLayers[hiddenLayers.length-1].neuronArr); //set correct input of actual layer
 		for(j =0 ; j < outputLayer.neuronCount; j++){			//all neutrons
 			for(k =0 ; k < actualInputs.size(); k++){			//all inputs resp. outputs
-				outputLayer.neuronArr[j].weights[k] = momentum * outputLayer.neuronArr[j].weights[k] + learningRate*( outputLayer.neuronArr[j].derivation * actualInputs.get(k));	// count new wigth			
+				//System.out.println("povodna vaha " + outputLayer.neuronArr[j].weights[k]);
+				//System.out.println("derivace predosleho  " + outputLayer.neuronArr[j].derivation);
+				//System.out.println("vstup " + actualInputs.get(k));
+				outputLayer.neuronArr[j].weights[k] = momentum * outputLayer.neuronArr[j].weights[k] + 
+						learningRate*( outputLayer.neuronArr[j].derivation * actualInputs.get(k));	// count new wigth	
+				//System.out.println("nova vaha " + outputLayer.neuronArr[j].weights[k]);
+				
 			} // pri vypocte novej vahy je mozne pricitavat aj odcitavat zalezi na algoritme
+			//System.out.println("cela vaha " + outputLayer.neuronArr[j].weights[0]);
+			//System.out.println("cela vaha " + outputLayer.neuronArr[j].weights[1]);
 		}
-
+		
+		//System.out.println("UPRAVA VAH SKRITYCH VRSTIEV");
 		//hidden layer
 		actualInputs.clear();
 		actualInputs = (ArrayList<Double>) inputs.clone();
+		//System.out.println("In 1 " + inputs.get(0) + " IN 2 " + inputs.get(1));
 		for( i = 0 ; i < layerCount; i++ ){
 			Layer actualLayer = hiddenLayers[i];
 			for(j =0 ; j < actualLayer.neuronCount; j++){
@@ -156,12 +181,12 @@ public class Network {
 					//System.out.println("povodna vaha " + actualLayer.neuronArr[j].weights[k]);
 					//System.out.println("derivace predosleho  " + actualLayer.neuronArr[j].derivation);
 					//System.out.println("vstup " + actualInputs.get(k));
-					hiddenLayers[i].neuronArr[j].weights[k] = momentum * actualLayer.neuronArr[j].weights[k] + learningRate*( actualLayer.neuronArr[j].derivation * actualInputs.get(k));			
+					hiddenLayers[i].neuronArr[j].weights[k] = momentum * actualLayer.neuronArr[j].weights[k] +
+							learningRate*( actualLayer.neuronArr[j].derivation * actualInputs.get(k));			
 					//System.out.println("prepisana vaha " + hiddenLayers[i].neuronArr[j].weights[k]);
 				}
 			}
 			refreshInputs(hiddenLayers[i].neuronArr);
-
 		}
 	}
 	
@@ -176,6 +201,7 @@ public class Network {
 
 	private double countOutput(double totalNeuronNet){
 		double tmp = 1.0 / (1.0 + Math.exp(-totalNeuronNet));
+		//System.out.println("CURAK SIGMOID " + tmp);
 		return tmp;
 	}
 	
@@ -235,13 +261,27 @@ public class Network {
 		for( i = 0 ; i < actualInputs.size(); i++ ){
 			System.out.print("actualInputs" +i+ "=" +  actualInputs.get(i) + " ");
 		}
+		System.out.println("TARGET: " + target);
 		System.out.println();
 		System.out.println("==========================================================================================  ");
-		
+	}
+	 
+	public void printInitialState(){
+		System.out.println("Hidden layer count:" + layerCount);
+		System.out.println("Neutron count in hidden layer:" + hNeuronsCount);
+		System.out.println("Output neuron count:" + oNeuronsCount);
 	}
 	
 	public void printOut(){
-		
+		System.out.println("GLOBAL ERROR " + globalErr);
+		int j;
+		for(j =0 ; j < outputLayer.neuronCount; j++){
+			System.out.println("INPUT :" + inputs.get(0) + " " + inputs.get(1)+ " EXPECTED OUT: " + target + " NETWORK OUT: " + outputLayer.neuronArr[j].out + " ACTUAL OUT ERROR " + outputLayer.totalError);
+			/*for(k =0 ; k < outputLayer.neuronArr[j].weights.length; k++){
+				System.out.print("weight" +k+ "=" +  outputLayer.neuronArr[j].weights[k] + " ");					
+			}
+			System.out.println();*/
+		}
 	}
 	
 }

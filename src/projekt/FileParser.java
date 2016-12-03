@@ -15,8 +15,8 @@ public class FileParser {
 	public double target3 = 1.0;
 	public double target4 = 1.0;
 	int layerCount = 1; 	//pocet vrstiev bez vstupu a poslednej vrstvy
-	int inputCount = 4;
-	int hNeutronsCount = 2;
+	int inputCount = 2;
+	int hNeutronsCount = 5;
 	int oNeutronsCount = 1;
 	
 	public FileParser(){
@@ -36,8 +36,6 @@ public class FileParser {
 		testedInputs = new ArrayList<Double>();
 		testedInputs.add(1.0);
 		testedInputs.add(1.0);
-		
-		
 		
 		/*int i;
 		for(i=0; i < inputCount; i++){
