@@ -13,64 +13,31 @@ public class Main {
 	}
 	
 	public static void main(String[] args) {
-		
+		int totalGoal = 0;
 		FileParser data = new FileParser();
 		Network bpNetwork = new Network(data);
 		
 		int j, i=0, inPosition = 0;
 		while(i < data.epochs && bpNetwork.globalErr > data.eps){
-			//inPosition = rand.nextInt((data.inputsArr.size()));
+			//inPosition = rand.nextInt((data.trainingDataset.size()));
 			//inPosition = i%4;
 			bpNetwork.globalErr = 0.0;
-			for(j = 0 ; j < data.inputsArr.size(); j++){
+			for(j = 0 ; j < data.trainingDataset.size(); j++){
 				//System.out.println(inPosition);
 				System.out.println("EPOCH: " + i);
-				bpNetwork.netTraining(data.inputsArr.get(j), data.targetArr.get(j));			
+				bpNetwork.netTraining(data.trainingDataset.get(j), data.targetArr.get(j));			
 			}
 			i++;
 		}
-		bpNetwork.test(data.inputsArr.get(0));
-		bpNetwork.test(data.inputsArr.get(1));
-		bpNetwork.test(data.inputsArr.get(2));
-		bpNetwork.test(data.inputsArr.get(3));				
-		
-		
-		/*while(i < epochs){
-			bpNetwork.globalErr = 0.0;
-			System.out.println("***************************************************FIRST DATASET****************************************************");
-			System.out.println("EPOCH: " + i);
-			
-			//System.out.println("***************************************************FIRST DATASET****************************************************");
-			bpNetwork.netTraining(data.inputs1, data.target1);
-			bpNetwork.netTraining(data.inputs4, data.target4);
-		
-			//System.out.println("***************************************************SECOND DATASET****************************************************");
-			
-			
-			//System.out.println("***************************************************THIRD DATASET****************************************************");
-			bpNetwork.netTraining(data.inputs3, data.target3);
-			//bpNetwork.netTraining(data.inputs4, data.target4);
-			
-			//System.out.println("***************************************************FOURTH DATASET****************************************************");
-			bpNetwork.netTraining(data.inputs2, data.target2);
-			
-			i++;
-			//System.out.println("=====================================================================================");
-			
-		}*/
-		/*bpNetwork.test(data.testedInputs);
-		data.testedInputs.clear();
-		data.testedInputs.add(1.0);
-		data.testedInputs.add(0.0);
-		bpNetwork.test(data.testedInputs);
-		data.testedInputs.clear();
-		data.testedInputs.add(0.0);
-		data.testedInputs.add(0.0);
-		bpNetwork.test(data.testedInputs);
-		data.testedInputs.clear();
-		data.testedInputs.add(0.0);
-		data.testedInputs.add(1.0);
-		bpNetwork.test(data.testedInputs);*/
-	}
 
+		for(j = 0 ; j < data.testedDataset.size(); j++){
+			totalGoal += bpNetwork.test(data.trainingDataset.get(j), data.targetArr.get(j));				
+		}
+		
+		bpNetwork.showStatistics(data.testedDataset.size(), totalGoal);
+	}
+	
+	public void run(){
+		
+	}
 }

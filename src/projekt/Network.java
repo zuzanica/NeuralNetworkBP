@@ -22,7 +22,7 @@ public class Network {
 		this.layerCount = data.layerCount;
 		this.hNeuronsCount = data.hNeutronsCount;
 		this.oNeuronsCount = data.oNeutronsCount;
-		this.inputs = (ArrayList<Double>) data.inputsArr.get(0).clone();
+		this.inputs = (ArrayList<Double>) data.trainingDataset.get(0).clone();
 		actualInputs.clear();
 		actualInputs = (ArrayList<Double>) inputs.clone();
 		initialize();
@@ -59,17 +59,39 @@ public class Network {
 				
 	}
 	
-	public void test(ArrayList<Double> inputs){
+	public int test(ArrayList<Double> inputs, double exptectation){
+		int netGoal = 0;
 		System.out.println("================================================================================");
 		System.out.println("======================TESTING===================================================");	
+		target = exptectation;
 		this.inputs.clear();
 		this.inputs = (ArrayList<Double>) inputs.clone();
 		actualInputs.clear();
 		actualInputs = (ArrayList<Double>) inputs.clone();
 		//printInputs();
 		forwardPropagate();
+		netGoal = compareNetOutput(exptectation);
 		printOut();
+		return netGoal;
 		//printInfo();
+	}
+	
+	public int compareNetOutput( double expectation ){
+		int j, goal = 0;
+		for(j =0 ; j < outputLayer.neuronCount; j++){
+			if(( Math.abs(outputLayer.neuronArr[j].out - target + outputLayer.totalError) < 0.1) || 
+			   ( Math.abs(outputLayer.neuronArr[j].out - target - outputLayer.totalError) < 0.1)){
+				goal++;
+			}		
+		}
+		return goal;
+	}
+	
+	public void showStatistics(int testedInputs, int totalGoal){
+		double accuracy = totalGoal/testedInputs * 100;
+		System.out.println("================================================================================= ");
+		System.out.format("Correct results: %d/%d \n", totalGoal,testedInputs);
+		System.out.format("Accuracy: %.2f%%\n", accuracy);
 	}
 	
 	private void forwardPropagate(){
