@@ -3,7 +3,7 @@ package projekt;
 import java.util.ArrayList;
 
 public class Network {
-	public double globalErr = 0.0;
+	public double globalErr = 1.0;
 	private int layerCount;
 	private int hNeuronsCount;
 	private int oNeuronsCount;
@@ -22,12 +22,12 @@ public class Network {
 		this.layerCount = data.layerCount;
 		this.hNeuronsCount = data.hNeutronsCount;
 		this.oNeuronsCount = data.oNeutronsCount;
-		this.inputs = (ArrayList<Double>) data.inputs1.clone();
+		this.inputs = (ArrayList<Double>) data.inputsArr.get(0).clone();
 		actualInputs.clear();
 		actualInputs = (ArrayList<Double>) inputs.clone();
 		initialize();
 		//printInputs();
-		printInitialState();
+		//printInitialState();
 		//printInfo();
 	}
 	
@@ -40,6 +40,7 @@ public class Network {
 		}	
 		outputLayer = new Layer(actualInputs, oNeuronsCount);
 	}
+	
 	
 	public void netTraining(ArrayList<Double> inputs, double target){
 		this.target= target;
@@ -59,7 +60,7 @@ public class Network {
 	}
 	
 	public void test(ArrayList<Double> inputs){
-		System.out.println("==================================================================================");
+		System.out.println("================================================================================");
 		System.out.println("======================TESTING===================================================");	
 		this.inputs.clear();
 		this.inputs = (ArrayList<Double>) inputs.clone();
@@ -265,18 +266,13 @@ public class Network {
 		System.out.println();
 		System.out.println("==========================================================================================  ");
 	}
-	 
-	public void printInitialState(){
-		System.out.println("Hidden layer count:" + layerCount);
-		System.out.println("Neutron count in hidden layer:" + hNeuronsCount);
-		System.out.println("Output neuron count:" + oNeuronsCount);
-	}
 	
 	public void printOut(){
-		System.out.println("GLOBAL ERROR " + globalErr);
+		System.out.format("GLOBAL ERROR %.5f %n", globalErr);
 		int j;
 		for(j =0 ; j < outputLayer.neuronCount; j++){
-			System.out.println("INPUT :" + inputs.get(0) + " " + inputs.get(1)+ " EXPECTED OUT: " + target + " NETWORK OUT: " + outputLayer.neuronArr[j].out + " ACTUAL OUT ERROR " + outputLayer.totalError);
+			//System.out.println("INPUT :" + inputs.get(0) + " " + inputs.get(1)+ " EXPECTED OUT: " + target + " NETWORK OUT: " + outputLayer.neuronArr[j].out + " ACTUAL OUT ERROR " + outputLayer.totalError);
+			System.out.format("INPUT : %.1f %.1f Expected OUT: %.1f NETWORK OUT: %.8f  ACTUAL OUT ERROR %.8f%n", inputs.get(0), inputs.get(1), target, outputLayer.neuronArr[j].out, outputLayer.totalError);
 			/*for(k =0 ; k < outputLayer.neuronArr[j].weights.length; k++){
 				System.out.print("weight" +k+ "=" +  outputLayer.neuronArr[j].weights[k] + " ");					
 			}
