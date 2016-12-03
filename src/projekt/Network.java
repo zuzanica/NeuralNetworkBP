@@ -1,5 +1,6 @@
 package projekt;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class Network {
@@ -61,8 +62,10 @@ public class Network {
 	
 	public int test(ArrayList<Double> inputs, double exptectation){
 		int netGoal = 0;
-		System.out.println("================================================================================");
-		System.out.println("======================TESTING===================================================");	
+		System.out.println("=======================================================TESTING=========================================");	
+		try {
+			Main.output.write("=======================================================TESTING==========================================\n");
+		} catch (IOException e) {}
 		target = exptectation;
 		this.inputs.clear();
 		this.inputs = (ArrayList<Double>) inputs.clone();
@@ -87,11 +90,19 @@ public class Network {
 		return goal;
 	}
 	
-	public void showStatistics(int testedInputs, int totalGoal){
+	public void showStatistics(int testedInputs, int totalGoal, int epoch){
 		double accuracy = totalGoal/testedInputs * 100;
-		System.out.println("================================================================================= ");
+		System.out.println("==========================================================================================================");
+		System.out.format("Finished after: %d epochs.\n", epoch);
 		System.out.format("Correct results: %d/%d \n", totalGoal,testedInputs);
 		System.out.format("Accuracy: %.2f%%\n", accuracy);
+		
+		try {
+			Main.output.write("========================================================================================================\n");
+			Main.output.write("Finished after: " + epoch + " epochs.\n");
+			Main.output.write("Correct Result: " + totalGoal + "/" + testedInputs + "\n");
+			Main.output.write("Accuracy: " + accuracy + "%\n");
+		} catch (IOException e) {}
 	}
 	
 	private void forwardPropagate(){
@@ -218,18 +229,15 @@ public class Network {
 		int i;
 		for(i=0; i < neurons.length; i++){
 			actualInputs.add(neurons[i].out);		// create neuron, initillized with weight count
-			//System.out.println("Input:" + actualInputs.get(i));
 		}
 	}
 
 	private double countOutput(double totalNeuronNet){
 		double tmp = 1.0 / (1.0 + Math.exp(-totalNeuronNet));
-		//System.out.println("CURAK SIGMOID " + tmp);
 		return tmp;
 	}
 	
 	private double countErrOut(Neuron neuron){
-		//System.out.println(neuron.out + " " + target);
 		double tmp = Math.pow((target - neuron.out), 2) /2 ;
 		return tmp;
 	}
@@ -273,7 +281,6 @@ public class Network {
 			}
 			System.out.println();
 		}
-		//System.out.println();
 		
 	}
 	
@@ -291,14 +298,16 @@ public class Network {
 	
 	public void printOut(){
 		System.out.format("GLOBAL ERROR %.5f %n", globalErr);
+		try {
+			Main.output.write("GLOBAL ERROR " + globalErr + "\n");
+		} catch (IOException e) {}
 		int j;
 		for(j =0 ; j < outputLayer.neuronCount; j++){
-			//System.out.println("INPUT :" + inputs.get(0) + " " + inputs.get(1)+ " EXPECTED OUT: " + target + " NETWORK OUT: " + outputLayer.neuronArr[j].out + " ACTUAL OUT ERROR " + outputLayer.totalError);
 			System.out.format("INPUT : %.1f %.1f Expected OUT: %.1f NETWORK OUT: %.8f  ACTUAL OUT ERROR %.8f%n", inputs.get(0), inputs.get(1), target, outputLayer.neuronArr[j].out, outputLayer.totalError);
-			/*for(k =0 ; k < outputLayer.neuronArr[j].weights.length; k++){
-				System.out.print("weight" +k+ "=" +  outputLayer.neuronArr[j].weights[k] + " ");					
-			}
-			System.out.println();*/
+			try {
+				Main.output.write("INPUT :" + inputs.get(0) + " " + inputs.get(1)+ " EXPECTED OUT: " + target + " NETWORK OUT: " + outputLayer.neuronArr[j].out + " ACTUAL OUT ERROR " + outputLayer.totalError+ "\n");
+			} catch (IOException e) {			}
+
 		}
 	}
 	

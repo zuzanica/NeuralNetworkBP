@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -47,7 +48,7 @@ public class FileParser {
 		normalizeDataset(testedTargetArr);
 		printInitialState();
 		saveCSV("conf/train_norm_dataset.csv");
-		saveCSV("conf/test_norm_dataset.csv");
+		saveCSV("conf/test_norm_dataset.csv");		
 	}
 	
 	/**
@@ -142,7 +143,7 @@ public class FileParser {
 		pw.close();
 
 	}
-	
+		 	
 	public void normalizeDataset( ArrayList<Double> targetArr){
 		int i;
 		double[] minmax = findMinMax(targetArr);
