@@ -48,6 +48,13 @@ public class FileParser {
 		
 		parseCSV(trainingFile, trainingDataset, targetArr);
 		parseCSV(testingFile, testedDataset, testedTargetArr);
+		if(trainingDataset.size() <= 0){
+			String trainingFile = "conf/xor.csv";
+			String testingFile = "conf/xor.csv";	
+			parseCSV(trainingFile, trainingDataset, targetArr);
+			parseCSV(testingFile, testedDataset, testedTargetArr);
+		}
+		
 		normalizeDataset(targetArr);
 		normalizeDataset(testedTargetArr);
 		
@@ -81,18 +88,45 @@ public class FileParser {
 			if(tmp >= 0 ){
 				inputCount =  tmp;
 			}
-			layerCount = Integer.parseInt( prop.getProperty("HiddenLayers"));
-			hNeutronsCount = Integer.parseInt( prop.getProperty("HiddenNeurons"));
-			oNeutronsCount = Integer.parseInt( prop.getProperty("OutputNeutron"));
-			epochs = Integer.parseInt( prop.getProperty("Epochs"));
-			eps = Double.parseDouble( prop.getProperty("EPS"));
-			learningRate = Double.parseDouble( prop.getProperty("LearningRate"));
-			trainingFile = prop.getProperty("TrainingFile");
-			testingFile = prop.getProperty("TestingFile");
-			outFile = prop.getProperty("OutputFile");
+			tmp = conevertIntValue(prop.getProperty("HiddenLayers"));
+			if(tmp >= 0 ){
+				layerCount =  tmp;
+			}
+			tmp = conevertIntValue(prop.getProperty("HiddenNeurons"));
+			if(tmp >= 0 ){
+				hNeutronsCount =  tmp;
+			}
+			tmp = conevertIntValue(prop.getProperty("OutputNeutron"));
+			if(tmp >= 0 ){
+				oNeutronsCount =  tmp;
+			}
+			tmp = conevertIntValue(prop.getProperty("Epochs"));
+			if(tmp >= 0 ){
+				epochs =  tmp;
+			}
+			double dtmp = conevertDoubleValue(prop.getProperty("EPS"));
+			if(dtmp >= 0.0 ){
+				eps =  dtmp;
+			}
+			dtmp = conevertDoubleValue(prop.getProperty("LearningRate"));
+			if(dtmp >= 0.0 ){
+				learningRate =  dtmp;
+			}
+			String stmp = prop.getProperty("TrainingFile");
+			if(stmp != null ){
+				trainingFile =  stmp;
+			}
+			stmp = prop.getProperty("TestingFile");
+			if(stmp != null ){
+				testingFile =  stmp;
+			}
+			stmp = prop.getProperty("OutputFile");
+			if(stmp != null ){
+				outFile =  stmp;
+			}
 			
 		} catch (IOException ex) {
-			System.err.println("Configuration file does not exit. Network properties set to default");
+			System.err.println("Configuration file does not exit. Network properties set to default.");
 		} finally {
 			if (input != null) {
 				try {
@@ -110,7 +144,7 @@ public class FileParser {
 		try{
 			tmp = Integer.parseInt(in);
 		}catch (Exception e) {
-			System.err.println("Problem in config file set default property");
+			System.err.println("Problem in " + in + " program set default property.");
 			return tmp;
 		}
 		return tmp;
@@ -119,9 +153,9 @@ public class FileParser {
 	public double conevertDoubleValue(String in){
 		double tmp = -1.0 ;
 		try{
-			tmp = Integer.parseInt(in);
+			tmp = Double.parseDouble(in);
 		}catch (Exception e) {
-			System.err.println("Problem in config file set default property");
+			System.err.println("Problem in " + in + " program set default property.");
 			return tmp;
 		}
 		return tmp;
@@ -153,7 +187,8 @@ public class FileParser {
             }
             
         } catch (IOException e) {
-        	System.err.println("File " + trainingFile + " does not exist.");
+        	System.err.println("File " + trainingFile + " does not exist. Program sets to default property.");
+        	dataset.clear();
         }
         
         return dataset;
