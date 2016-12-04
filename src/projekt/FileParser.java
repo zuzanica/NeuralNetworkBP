@@ -1,6 +1,7 @@
 package projekt;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -8,12 +9,15 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Properties;
 
+/**
+ * 
+ * @author xstude22
+ * @see Class parsing input files 
+ */
 public class FileParser {
 	public ArrayList<Double> testedInputs;
 	
@@ -23,11 +27,12 @@ public class FileParser {
 	public ArrayList<ArrayList<Double>> testedDataset;
 	public ArrayList<Double> testedTargetArr;
 
+	//set default values
 	int epochs = 500;
 	double eps = 0.001;
 	double learningRate = 0.7;
 	int inputCount = 2;
-	int layerCount = 1;  		//pocet vrstiev bez vstupu a poslednej vrstvy
+	int layerCount = 1;  		//count of output layers
 	int hNeutronsCount = 3;
 	int oNeutronsCount = 1;
 	String trainingFile = "conf/xor.csv";
@@ -43,15 +48,19 @@ public class FileParser {
 		
 		parseCSV(trainingFile, trainingDataset, targetArr);
 		parseCSV(testingFile, testedDataset, testedTargetArr);
-		//printInitialState();
-		//printtested();
 		normalizeDataset(targetArr);
-		//printtested();
 		normalizeDataset(testedTargetArr);
-		//printtested();
+		
+		try {
+            File file = new File(outFile);					//open output file
+            Main.output = new BufferedWriter(new FileWriter(file));
+        } catch ( IOException e ) {
+        	System.err.println("Can no open output file.");
+        }
+		
 		printInitialState();
-		saveCSV("conf/train_norm_dataset.csv",  trainingDataset, targetArr);
-		saveCSV("conf/test_norm_dataset.csv", testedDataset, testedTargetArr );
+		//saveCSV("conf/train_norm_dataset.csv",  trainingDataset, targetArr);
+		//saveCSV("conf/test_norm_dataset.csv", testedDataset, testedTargetArr );
 	}
 	
 	/**
@@ -61,7 +70,6 @@ public class FileParser {
 	 */
 	public int loadConf(String file){
 		Properties prop = new Properties();
-		OutputStream output = null;
 		InputStream input = null;
 		
 		try {	
@@ -69,7 +77,10 @@ public class FileParser {
 			prop.load(input); 
 
 			// get the property value
-			inputCount = Integer.parseInt( prop.getProperty("InputsCount"));
+			int tmp = conevertIntValue(prop.getProperty("InputsCount"));
+			if(tmp >= 0 ){
+				inputCount =  tmp;
+			}
 			layerCount = Integer.parseInt( prop.getProperty("HiddenLayers"));
 			hNeutronsCount = Integer.parseInt( prop.getProperty("HiddenNeurons"));
 			oNeutronsCount = Integer.parseInt( prop.getProperty("OutputNeutron"));
@@ -94,6 +105,35 @@ public class FileParser {
 		return 1;
 	}
 	
+	public int conevertIntValue(String in){
+		int tmp = -1 ;
+		try{
+			tmp = Integer.parseInt(in);
+		}catch (Exception e) {
+			System.err.println("Problem in config file set default property");
+			return tmp;
+		}
+		return tmp;
+	}
+	
+	public double conevertDoubleValue(String in){
+		double tmp = -1.0 ;
+		try{
+			tmp = Integer.parseInt(in);
+		}catch (Exception e) {
+			System.err.println("Problem in config file set default property");
+			return tmp;
+		}
+		return tmp;
+	}
+	
+	/**
+	 * Parse csv file into array
+	 * @param file: input file
+	 * @param dataset: created array from data set
+	 * @param target: array of targets
+	 * @return
+	 */
 	public ArrayList<ArrayList<Double>> parseCSV(String file,  ArrayList<ArrayList<Double>> dataset, ArrayList<Double> target ){
 		String csvFile = file;
         String line = "";
@@ -101,21 +141,15 @@ public class FileParser {
 
         try (BufferedReader br = new BufferedReader(new FileReader(csvFile))) {
 
-        	int j, i=0;
+        	int j=0;
         	while((line = br.readLine()) != null) {
-                // use comma as separator
-    			//System.out.println("Input LINE : " + i);
                 String[] in = line.split(cvsSplitBy);
                 ArrayList<Double> tmp = new ArrayList<Double>();
                 for(j=0 ; j < in.length-1; j++){
-                    tmp.add(Double.parseDouble(in[j]));
-                	//System.out.print("input " + j + " = " + tmp.get(j) + " "); 
+                    tmp.add(Double.parseDouble(in[j])); 
     			}
-
                 target.add(Double.parseDouble(in[j]));
-                //System.out.println("input 1 = " + tmp.get(0) + " , input 2 " + tmp.get(1) + " , target : " + in[2]);
                 dataset.add(tmp);
-                i++;
             }
             
         } catch (IOException e) {
@@ -125,6 +159,12 @@ public class FileParser {
         return dataset;
 	}
 	
+	/**
+	 * Save normalized data set into csv
+	 * @param csvfile
+	 * @param dataset
+	 * @param target
+	 */
 	public void saveCSV(String csvfile,  ArrayList<ArrayList<Double>> dataset, ArrayList<Double> target ){
 		PrintWriter pw = null;
 		try {
@@ -137,31 +177,34 @@ public class FileParser {
 		int i,j;
 		for(i=0; i<dataset.size(); i++){
 			ArrayList<Double> tmp = dataset.get(i);
-			//System.out.print(i + ". "); 
 			for(j=0 ; j < tmp.size(); j++){
 				builder.append(tmp.get(j)+",");
 			}
 			builder.append(target.get(i)+"\n");
 		}
-
 		pw.write(builder.toString());
 		pw.close();
 
 	}
-		 	
+	
+	/**
+	 *  	 	
+	 * @param target: Array witch will be normalized
+	 */
 	public void normalizeDataset( ArrayList<Double> target){
 		int i;
 		double[] minmax = findMinMax(target);
 		for(i=0; i < target.size(); i++){
-			//System.out.println(target.get(i));
-			//System.out.println(minmax[0]);
 			double val = (target.get(i) -  minmax[0]) / ( minmax[1] -  minmax[0]);
-			//System.out.println(val);
 			target.set(i, val);
-			//System.out.println(target.get(i));
 		}	
 	}
 	
+	/**
+	 * Find max and min in selected arrayList
+	 * @param list: ArrayList
+	 * @return min, max array
+	 */
 	public double[] findMinMax(ArrayList<Double> list){
 		double minmax[] = {list.get(0) ,list.get(0) };
 		int i;
@@ -175,10 +218,6 @@ public class FileParser {
 		}
 		return minmax;
 	}
-
-	public double findMax(ArrayList<Double> list){
-		  return list.indexOf (Collections.max(list)); 
-	}	
 	
 	public void printInitialState(){
 		System.out.println("Epoch count: " + epochs);
@@ -192,8 +231,23 @@ public class FileParser {
 		System.out.println("Testing dataset file: " + testingFile);
 		System.out.println("Output file: " + outFile);
 		//printInputs();
+		try {
+			Main.output.write("Epoch count: " + epochs + "\n");
+			Main.output.write("Eps: " + eps + "\n");
+			Main.output.write("Learning rate: " + learningRate + "\n");
+			Main.output.write("Inputs count: " + inputCount + "\n");
+			Main.output.write("Hidden layer count: " + layerCount + "\n");
+			Main.output.write("Neutron count in hidden layer: " + hNeutronsCount + "\n");
+			Main.output.write("Output neuron count:" + oNeutronsCount + "\n");
+			Main.output.write("Training dataset file: " + trainingFile + "\n");
+			Main.output.write("Testing dataset file: " + testingFile + "\n");
+			Main.output.write("Output file: " + outFile + "\n");
+		} catch (IOException e) {}
 	}
 	
+	/**
+	 * Debugging function print training data set
+	 */
 	public void printInputs(){
 		int i,j; 
 		for(i=0; i<trainingDataset.size(); i++){
@@ -206,6 +260,9 @@ public class FileParser {
 		}
 	}
 	
+	/**
+	 * Debugging function print testing data set
+	 */
 	public void printtested(){
 		int i,j; 
 		for(i=0; i<testedDataset.size(); i++){
@@ -216,16 +273,5 @@ public class FileParser {
 			}
 			System.out.println("Target : " + testedTargetArr.get(i));
 		}
-	}
-	
-	public void printInfo(){
-		System.out.println("============================================= ");
-		System.out.println("Inputs count: " + inputCount);
-		int i,j;
-		for( i = 0 ; i < inputCount; i++ ){
-			System.out.print("input" +i+ "=" +  trainingDataset.get(i) + " ");
-		}
-		System.out.println();
-		System.out.println("============================================= ");
 	}
 }
