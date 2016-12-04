@@ -18,6 +18,7 @@ public class Network {
 	private Layer[] hiddenLayers;
 	private Layer outputLayer;
 	
+	@SuppressWarnings("unchecked")
 	public Network(FileParser data){
 		
 		this.layerCount = data.layerCount;
@@ -43,6 +44,7 @@ public class Network {
 	}
 	
 	
+	@SuppressWarnings("unchecked")
 	public void netTraining(ArrayList<Double> inputs, double target){
 		this.target= target;
 		this.inputs.clear();
@@ -60,6 +62,7 @@ public class Network {
 				
 	}
 	
+	@SuppressWarnings("unchecked")
 	public int test(ArrayList<Double> inputs, double exptectation){
 		int netGoal = 0;
 		System.out.println("=======================================================TESTING=========================================");	
@@ -183,6 +186,7 @@ public class Network {
 		}	
 	}
 	
+	@SuppressWarnings("unchecked")
 	private void errorBackPropagation(){		
 		int i,j,k ;
 		

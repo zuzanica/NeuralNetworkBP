@@ -49,7 +49,7 @@ public class FileParser {
 		//printtested();
 		normalizeDataset(testedTargetArr);
 		//printtested();
-		//printInitialState();
+		printInitialState();
 		saveCSV("conf/train_norm_dataset.csv",  trainingDataset, targetArr);
 		saveCSV("conf/test_norm_dataset.csv", testedDataset, testedTargetArr );
 	}
@@ -191,7 +191,7 @@ public class FileParser {
 		System.out.println("Training dataset file: " + trainingFile);
 		System.out.println("Testing dataset file: " + testingFile);
 		System.out.println("Output file: " + outFile);
-		printInputs();
+		//printInputs();
 	}
 	
 	public void printInputs(){
