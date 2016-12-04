@@ -40,15 +40,18 @@ public class FileParser {
 		targetArr = new ArrayList<Double>();
 		testedDataset = new ArrayList<ArrayList<Double>>();
 		testedTargetArr = new ArrayList<Double>();
-
-		parseCSV(trainingFile, trainingDataset);
-		parseCSV(testingFile, testedDataset);
-//		printInitialState();
+		
+		parseCSV(trainingFile, trainingDataset, targetArr);
+		parseCSV(testingFile, testedDataset, testedTargetArr);
+		//printInitialState();
+		//printtested();
 		normalizeDataset(targetArr);
+		//printtested();
 		normalizeDataset(testedTargetArr);
-		printInitialState();
-		saveCSV("conf/train_norm_dataset.csv");
-		saveCSV("conf/test_norm_dataset.csv");		
+		//printtested();
+		//printInitialState();
+		saveCSV("conf/train_norm_dataset.csv",  trainingDataset, targetArr);
+		saveCSV("conf/test_norm_dataset.csv", testedDataset, testedTargetArr );
 	}
 	
 	/**
@@ -91,7 +94,7 @@ public class FileParser {
 		return 1;
 	}
 	
-	public void parseCSV(String file,  ArrayList<ArrayList<Double>> dataset ){
+	public ArrayList<ArrayList<Double>> parseCSV(String file,  ArrayList<ArrayList<Double>> dataset, ArrayList<Double> target ){
 		String csvFile = file;
         String line = "";
         String cvsSplitBy = ",";
@@ -101,7 +104,7 @@ public class FileParser {
         	int j, i=0;
         	while((line = br.readLine()) != null) {
                 // use comma as separator
-    			System.out.println("Input LINE : " + i);
+    			//System.out.println("Input LINE : " + i);
                 String[] in = line.split(cvsSplitBy);
                 ArrayList<Double> tmp = new ArrayList<Double>();
                 for(j=0 ; j < in.length-1; j++){
@@ -109,7 +112,7 @@ public class FileParser {
                 	//System.out.print("input " + j + " = " + tmp.get(j) + " "); 
     			}
 
-                targetArr.add(Double.parseDouble(in[j]));
+                target.add(Double.parseDouble(in[j]));
                 //System.out.println("input 1 = " + tmp.get(0) + " , input 2 " + tmp.get(1) + " , target : " + in[2]);
                 dataset.add(tmp);
                 i++;
@@ -118,9 +121,11 @@ public class FileParser {
         } catch (IOException e) {
         	System.err.println("File " + trainingFile + " does not exist.");
         }
+        
+        return dataset;
 	}
 	
-	public void saveCSV(String csvfile){
+	public void saveCSV(String csvfile,  ArrayList<ArrayList<Double>> dataset, ArrayList<Double> target ){
 		PrintWriter pw = null;
 		try {
 		    pw = new PrintWriter(new File(csvfile));
@@ -130,13 +135,13 @@ public class FileParser {
 		
 		StringBuilder builder = new StringBuilder();		
 		int i,j;
-		for(i=0; i<trainingDataset.size(); i++){
-			ArrayList<Double> tmp = trainingDataset.get(i);
-			System.out.print(i + ". "); 
+		for(i=0; i<dataset.size(); i++){
+			ArrayList<Double> tmp = dataset.get(i);
+			//System.out.print(i + ". "); 
 			for(j=0 ; j < tmp.size(); j++){
 				builder.append(tmp.get(j)+",");
 			}
-			builder.append(targetArr.get(i)+"\n");
+			builder.append(target.get(i)+"\n");
 		}
 
 		pw.write(builder.toString());
@@ -144,27 +149,28 @@ public class FileParser {
 
 	}
 		 	
-	public void normalizeDataset( ArrayList<Double> targetArr){
+	public void normalizeDataset( ArrayList<Double> target){
 		int i;
-		double[] minmax = findMinMax(targetArr);
-		//System.out.println("max" + minmax[1]);
-		//System.out.println("min" + minmax[0]);
-		for(i=0; i < targetArr.size(); i++){
-			double val = (targetArr.get(i) -  minmax[0]) / ( minmax[1] -  minmax[0]);
-			targetArr.set(i, val);
-			System.out.println("Normalized target: " + targetArr.get(i) );
+		double[] minmax = findMinMax(target);
+		for(i=0; i < target.size(); i++){
+			//System.out.println(target.get(i));
+			//System.out.println(minmax[0]);
+			double val = (target.get(i) -  minmax[0]) / ( minmax[1] -  minmax[0]);
+			//System.out.println(val);
+			target.set(i, val);
+			//System.out.println(target.get(i));
 		}	
 	}
 	
 	public double[] findMinMax(ArrayList<Double> list){
-		double minmax[] = {targetArr.get(0) ,targetArr.get(0) };
+		double minmax[] = {list.get(0) ,list.get(0) };
 		int i;
-		for(i=0; i < targetArr.size(); i++){
-			if(targetArr.get(i) < minmax[0]){
-				 minmax[0] = targetArr.get(i);
+		for(i=0; i < list.size(); i++){
+			if(list.get(i) < minmax[0]){
+				 minmax[0] = list.get(i);
 			}
-			if(targetArr.get(i) >  minmax[1]){
-				 minmax[1] = targetArr.get(i);
+			if(list.get(i) >  minmax[1]){
+				 minmax[1] = list.get(i);
 			}	
 		}
 		return minmax;
@@ -197,6 +203,18 @@ public class FileParser {
 				System.out.print("input " + j + " = " + tmp.get(j) + " "); 
 			}
 			System.out.println("Target : " + targetArr.get(i));
+		}
+	}
+	
+	public void printtested(){
+		int i,j; 
+		for(i=0; i<testedDataset.size(); i++){
+			ArrayList<Double> tmp = testedDataset.get(i);
+			System.out.print(i + ". "); 
+			for(j=0 ; j < tmp.size(); j++){
+				System.out.print("input " + j + " = " + tmp.get(j) + " "); 
+			}
+			System.out.println("Target : " + testedTargetArr.get(i));
 		}
 	}
 	

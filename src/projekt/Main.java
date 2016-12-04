@@ -38,17 +38,19 @@ public class Main {
 				bpNetwork.globalErr = 0.0;
 				for(j = 0 ; j < data.trainingDataset.size(); j++){
 					//System.out.println(inPosition);
-					System.out.println("EPOCH: " + i);
+					inPosition = rand.nextInt((data.trainingDataset.size()));
+					//inPosition = j;
+					/*System.out.println("EPOCH: " + i);
 					try {
 						Main.output.write("EPOCH: " + i + "\n");
-					} catch (IOException e) {}
-					bpNetwork.netTraining(data.trainingDataset.get(j), data.targetArr.get(j));			
+					} catch (IOException e) {}*/
+					bpNetwork.netTraining(data.trainingDataset.get(inPosition), data.targetArr.get(inPosition));			
 				}
 				i++;
 			}
 	
 			for(j = 0 ; j < data.testedDataset.size(); j++){
-				totalGoal += bpNetwork.test(data.trainingDataset.get(j), data.targetArr.get(j));				
+				totalGoal += bpNetwork.test(data.testedDataset.get(j), data.testedTargetArr.get(j));				
 			}
 			
 			bpNetwork.showStatistics(data.testedDataset.size(), totalGoal, i);

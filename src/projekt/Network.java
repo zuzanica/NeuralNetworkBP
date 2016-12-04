@@ -55,7 +55,7 @@ public class Network {
 		forwardPropagate();
 		derivationComputing();
 		errorBackPropagation();
-		printOut();
+		//printOut();
 		//printInfo();
 				
 	}
@@ -91,11 +91,11 @@ public class Network {
 	}
 	
 	public void showStatistics(int testedInputs, int totalGoal, int epoch){
-		double accuracy = totalGoal/testedInputs * 100;
+		double accuracy = ((double)totalGoal / (double)(testedInputs)) * 100;
 		System.out.println("==========================================================================================================");
 		System.out.format("Finished after: %d epochs.\n", epoch);
 		System.out.format("Correct results: %d/%d \n", totalGoal,testedInputs);
-		System.out.format("Accuracy: %.2f%%\n", accuracy);
+		System.out.format("Accuracy: %.2f%%", accuracy);
 		
 		try {
 			Main.output.write("========================================================================================================\n");
@@ -301,14 +301,26 @@ public class Network {
 		try {
 			Main.output.write("GLOBAL ERROR " + globalErr + "\n");
 		} catch (IOException e) {}
-		int j;
+		int j,k;
 		for(j =0 ; j < outputLayer.neuronCount; j++){
-			System.out.format("INPUT : %.1f %.1f Expected OUT: %.1f NETWORK OUT: %.8f  ACTUAL OUT ERROR %.8f%n", inputs.get(0), inputs.get(1), target, outputLayer.neuronArr[j].out, outputLayer.totalError);
+			System.out.format("INPUT: ");
 			try {
-				Main.output.write("INPUT :" + inputs.get(0) + " " + inputs.get(1)+ " EXPECTED OUT: " + target + " NETWORK OUT: " + outputLayer.neuronArr[j].out + " ACTUAL OUT ERROR " + outputLayer.totalError+ "\n");
-			} catch (IOException e) {			}
-
+				Main.output.write("INPUT: ");
+			} catch (IOException e) {}
+			
+			for(k=0 ; k < inputs.size(); k++){
+				System.out.format("%.1f  ",  inputs.get(k));
+				try {
+					Main.output.write(inputs.get(k) + " ");
+				} catch (IOException e) {}
+			}
+			System.out.format("Expected OUT: %.1f NETWORK OUT: %.8f  ACTUAL OUT ERROR %.8f%n", target, outputLayer.neuronArr[j].out, outputLayer.totalError);
+			try {
+				Main.output.write("EXPECTED OUT: " + target + " NETWORK OUT: " + outputLayer.neuronArr[j].out + " ACTUAL OUT ERROR " + outputLayer.totalError+ "\n");
+			} catch (IOException e) {}
 		}
 	}
+	
+	
 	
 }
